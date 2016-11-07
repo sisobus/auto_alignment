@@ -21,12 +21,12 @@ void printVectorString(vector<string>& v) {
 /*
  * d[i][j][mask]: i번째 워드를 포함하며 mask만큼의 태그를 선택했을 때
  *              j상태인 얻을 수 있는 최대 스코어
- *              j = i 워드를 포함한 상태:1, i워드 안포함 : 0
+ *              j = 연속에서 워드를 포함한 숫자
  *  O(n*m*(2^m))
  *  getScore  = word1 : tag1
  *  getScore2 = word2 : tag1
  */
-int d[11][2][1<<7];
+int d[11][3][1<<7];
 int getScore(string& s1, string& s2) {
     int ret = 0;
     for ( int i = 0 ; i < (int)s1.length() && i < (int)s2.length() ; i++ ) 
@@ -59,15 +59,17 @@ int main() {
 
     for ( int i = 1 ; i < n ; i++ ) 
         for ( int j = 0 ; j < (1<<m) ; j++ ) {
-            d[i][0][j] = d[i-1][1][j];
+            d[i][0][j] = max(max(d[i-1][0][j],d[i-1][1][j]),d[i-1][2][j]);
             vector<int> prevIndex = getPrevIndex(j);
+            d[i][1][j] = max(d[i][1][j],d[i-1][1][j]);
             for ( int k = 0 ; k < (int)prevIndex.size() ; k++ ) {
                 int prevMask = j&(~(1<<prevIndex[k]));
-                d[i][1][j] = max(d[i][1][j],d[i-1][1][prevMask]+getScore(words[i],tags[prevIndex[k]]));
-                d[i][1][j] = max(d[i][1][j],d[i-1][0][prevMask]+getScore2(words[i-1],words[i],tags[prevIndex[k]]));
+                d[i][1][j] = max(d[i][1][j],d[i-1][0][prevMask]+getScore(words[i],tags[prevIndex[k]]));
+                d[i][2][j] = max(d[i][2][j],d[i-1][1][prevMask]+getScore(words[i],tags[prevIndex[k]]));
+                d[i][2][j] = max(d[i][2][j],d[i-1][0][prevMask]+getScore(words[i-1],words[i],tags[prevIndex[k]]));
             }
         }
-    int ans = max(d[n-1][0][(1<<m)-1],d[n-1][1][(1<<m)-1]);
+    int ans = max(max(d[n-1][0][(1<<m)-1],d[n-1][1][(1<<m)-1]),d[n-1][2][(1<<m)-1]);
     printf("%d\n",ans);
 
     return 0;
