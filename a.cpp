@@ -64,7 +64,7 @@ int main() {
             for ( int k = 0 ; k < (int)prevIndex.size() ; k++ ) {
                 int prevMask = j&(~(1<<prevIndex[k]));
                 d[i][1][j] = max(d[i][1][j],d[i-1][1][prevMask]+getScore(words[i],tags[prevIndex[k]]));
-                d[i][1][j] = max(d[i][1][j],d[i-1][0][prevMask]+getScore2(words[i],words[i-1],tags[prevIndex[k]]));
+                d[i][1][j] = max(d[i][1][j],d[i-1][0][prevMask]+getScore2(words[i-1],words[i],tags[prevIndex[k]]));
             }
         }
     int ans = max(d[n-1][0][(1<<m)-1],d[n-1][1][(1<<m)-1]);
